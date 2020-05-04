@@ -22,10 +22,11 @@ function GridItem(x, y, row, column, width, height, hex, hsv, dateCreated) {
 class Grid {
 
   // TODO: takes in pre-existing firebase data c: 
-  constructor(d3Selector, colorToDraw, width, height, squaresPerRow) {
+  constructor(d3Selector, colorToDraw, audioCallback, width, height, squaresPerRow) {
     this.colorToDraw = colorToDraw;
     this.isMouseDown = false;
     this.mode = "draw"; // Options: "draw", "select"
+    this.callbackOnDraw = audioCallback;
 
     this.width = width;
     this.height = height;
@@ -125,6 +126,7 @@ class Grid {
   }
 
   changeSquareColor(row, column) {
+    this.callbackOnDraw(this.colorToDraw, 200);
     console.log(this.colorToDraw)
     this.gridData[row][column].hex = this.colorToDraw.hex;
     this.gridData[row][column].hsv = this.colorToDraw.hsv;

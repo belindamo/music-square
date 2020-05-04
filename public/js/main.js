@@ -15,11 +15,13 @@ const STARTING_SQUARES_PER_ROW = 20;
 // -------- GLOBALS -------
 let isLoggedIn = false;
 let playSoundOnColorPick = true; // {Boolean}
+let playSoundOnDraw = true; // {Boolean}
 let pickedColor; // {Object|undefined} - with keys for hex, hue, saturation, value
 let grid; // {Grid|undefined}
 
 let isPlaying = false; // {Boolean} - whether it's playing back
-
+let audioCtx = null; // {AudioContext|null}
+let squareDuration = 200;
 
 /* ------------ INITIALIZE ------------ */
 
@@ -30,16 +32,18 @@ function initializeGame() {
   /* Global variable stuff */
   pickedColor = {hex: '#84DCCF', hsv: hexToHSVFromHS('#84DCCF')};
   $('#playSoundOnColorPick').prop('checked', playSoundOnColorPick);
+  $('#playSoundOnDraw').prop('checked', playSoundOnDraw);
   
   /* Event listener stuff */
   $('#playSoundOnColorPick').change(togglePlaySoundOnColorPick);
+  $('#playSoundOnDraw').change(togglePlaySoundOnDraw);
   document.addEventListener('keyup', onKeyUp);
 
   /* Grid stuff */
   const gridWidth = $('.grid-container').width();
   const gridHeight = $('.grid-container').height();
   
-  grid = new Grid('.grid', pickedColor, gridWidth, gridHeight, STARTING_SQUARES_PER_ROW);  
+  grid = new Grid('.grid', pickedColor, playSound, gridWidth, gridHeight, STARTING_SQUARES_PER_ROW);  
 }
 
 /* ------------ EVENT LISTENERS ------------ */
@@ -56,13 +60,18 @@ function changePickedColor(picker) {
   };
   grid.updateColorToDraw(pickedColor);
   if (playSoundOnColorPick) {
-    playSound(pickedColor, 500);
+    playSound(pickedColor, 200);
   }
 }
 
 function togglePlaySoundOnColorPick() {
   playSoundOnColorPick = !playSoundOnColorPick;
   $('#playSoundOnColorPick').prop('checked', playSoundOnColorPick);
+}
+
+function togglePlaySoundOnDraw() {
+  playSoundOnDraw = !playSoundOnDraw;
+  $('#playSoundOnDraw').prop('checked', playSoundOnDraw);  
 }
 
 function onKeyUp(e) {
@@ -112,13 +121,57 @@ function handleLogout() {
 
 /* ------------ AUDIO HANDLERS ------------ */
 
+let song = [];
+
+// by 27.69 degrees, starting at 0. That means 13 notes, aka
+// a whole octave in half notes.
+// Range: Middle C4 - C5.
+// https://pages.mtu.edu/~suits/notefreqs.html
+const notes = [
+  261.63,
+  277.18,
+  293.66,
+  311.13,
+  329.63,
+  349.23,
+  369.99,
+  392.00,
+  415.30,
+  440.00,
+  466.16,
+  493.88,
+  523.25
+]
+
 /**
- * 
+ * x = panning
+ * y = time (for now)
+ * hue = frequency
+ * saturation = reverb (less saturation = more reverb)
+ * value = ...octave?
  * @param {Object} color 
  * @param {Number} duration - in milliseconds, to play
  */
 function playSound(color, duration) {
+  
+  const hue = color.hsv[0];
+  const saturation = color.hsv[1];
 
+  var AudioContext = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new AudioContext({
+    latencyHint: 'interactive',
+    sampleRate: 48000,
+  });
+
+  let oscillatorNode = audioCtx.createOscillator();
+  oscillatorNode.type = 'triangle';
+
+  const frequency = notes[ Math.floor(hue/ 27.69) ];
+
+  oscillatorNode.frequency.setValueAtTime(frequency, audioCtx.currentTime); // value in hertz
+  oscillatorNode.connect(audioCtx.destination);
+  oscillatorNode.start();
+  oscillatorNode.stop(audioCtx.currentTime + duration/1000);
 }
 
 /**
@@ -126,13 +179,7 @@ function playSound(color, duration) {
  * @param {*} data 
  */
 function playbackMusic(data) {
-  let AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = new AudioContext();
-  let oscillatorNode = audioCtx.createOscillator();
-  oscillatorNode.type = 'triangle';
-  oscillatorNode.frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
-  oscillatorNode.connect(audioCtx.destination);
-  oscillatorNode.start();
+
 //   var gainNode = audioCtx.createGain();
 //   var finish = audioCtx.destination;
 }
