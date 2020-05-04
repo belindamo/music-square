@@ -1,8 +1,9 @@
 /* ------------ Grid Item Class START ------------ */
 
 // Note that x and y denote the index of square clicked
-// color is in hexadecimal
-function GridItem(x, y, row, column, width, height, hex, dateCreated) {
+// color is in hexadecimal and hue/saturation/value
+// 
+function GridItem(x, y, row, column, width, height, hex, hsv, dateCreated) {
   this.x = x;
   this.y = y;
   this.row = row;
@@ -10,6 +11,7 @@ function GridItem(x, y, row, column, width, height, hex, dateCreated) {
   this.width = width;
   this.height = height;
   this.hex = hex;
+  this.hsv = hsv;
   this.click = 0;
   this.dateCreated = dateCreated; 
 }
@@ -59,23 +61,17 @@ class Grid {
       .on('mousedown', this.onMouseDown)
       .on('mouseup', this.onMouseUp)
       .on('mouseenter', this.onMouseEnter);
-
   }
   
   /**
    * Updates this.colorToDraw. Checks if color to change is hex color
-   * @param {String} color - hex code
+   * @param {Object} color - with string hex and array hsv
    * @return {Boolean} - whether color successfully updated
    */
   updateColorToDraw = (color) => {
     console.log(color)
-    if (/^#[0-9A-F]{6}$/i.test(color)) {
-      console.log('fff');
-      
-      this.colorToDraw = color;
-      return true;
-    }
-    return false;
+    this.colorToDraw = color;
+    return true;
   }
 
   /**
@@ -104,7 +100,7 @@ class Grid {
     for (var row = 0; row < squaresPerColumn; row++) {
       data.push( [] );
       for (var column = 0; column < squaresPerRow; column++) {
-        data[row].push(new GridItem(xpos, ypos, row, column, width, height, "#ffffff", date));
+        data[row].push(new GridItem(xpos, ypos, row, column, width, height, "#FFFFFF", [0, 0, 100], date));
         xpos += width;
       }
       xpos = 0;
@@ -114,16 +110,8 @@ class Grid {
   }
 
   onMouseDown = (d) => {
-    console.log(d)
-    // this.style("fill", "#000");
     this.isMouseDown = true;
     this.changeSquareColor(d.row, d.column);
-    // d3.selectAll('square').filter(function(d) {
-    //   return 
-    // })
-    // transition().
-    // delay(100).
-    // style("background-color", "red");
   }
 
   onMouseUp = (d) => {
@@ -137,7 +125,9 @@ class Grid {
   }
 
   changeSquareColor(row, column) {
-    this.gridData[row][column].hex = this.colorToDraw;
+    console.log(this.colorToDraw)
+    this.gridData[row][column].hex = this.colorToDraw.hex;
+    this.gridData[row][column].hsv = this.colorToDraw.hsv;
     d3.select(`#square-${row}-${column}`)
       // .transition().delay(100)
       .style("fill", function(d) { return d.hex })
@@ -151,17 +141,3 @@ class Grid {
 
 
 /* ------------ Grid Class END ------------ */
-
-
-
-/* ------------ MusicSquare Class START ------------ */
-
-
-class MusicSquare {
-  constructor() {
-
-  }
-}
-
-
-/* ------------ MusicSquare Class END ------------ */

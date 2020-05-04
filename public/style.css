@@ -2,7 +2,7 @@ body {
    font-family: Courier, Arial; 
 }
 
-h1:hover, h2:hover, p:hover {
+h1:hover, h2:hover, p:hover, input:hover {
   cursor: default;
 }
 
@@ -82,9 +82,6 @@ button:active {
 /*   padding-top: 5vh;
   display:flex;
   justify-content:center; */
-}
-
-.grid {
 }
 
 .footer-container {

@@ -10,11 +10,15 @@
 
 // -------- CONSTANTS --------
 const STARTING_SQUARES_PER_ROW = 20;
-let IS_PLAYING = false; // {Boolean} - whether it's playing back
-let IS_LOGGED_IN = false;
+
+
+// -------- GLOBALS -------
+let isLoggedIn = false;
 let playSoundOnColorPick = true; // {Boolean}
-let pickedColor; // {String|undefined}
+let pickedColor; // {Object|undefined} - with keys for hex, hue, saturation, value
 let grid; // {Grid|undefined}
+
+let isPlaying = false; // {Boolean} - whether it's playing back
 
 
 /* ------------ INITIALIZE ------------ */
@@ -24,11 +28,10 @@ $(window).on('load', initializeGame);
 function initializeGame() {
   
   /* Global variable stuff */
-  pickedColor = $('#colorPicker').val();
+  pickedColor = {hex: '#84DCCF', hsv: hexToHSVFromHS('#84DCCF')};
   $('#playSoundOnColorPick').prop('checked', playSoundOnColorPick);
   
   /* Event listener stuff */
-  $('#colorPicker').change(changePickedColor);
   $('#playSoundOnColorPick').change(togglePlaySoundOnColorPick);
   document.addEventListener('keyup', onKeyUp);
 
@@ -46,9 +49,15 @@ function initializeGame() {
 /**
  * This function is called when color picker's color changes
  */
-function changePickedColor() {
-  pickedColor = $(this).val();
-  grid.updateColorToDraw(`#${pickedColor}`);
+function changePickedColor(picker) {
+  pickedColor = {
+    hex: picker.toHEXString(),
+    hsv: picker.hsv
+  };
+  grid.updateColorToDraw(pickedColor);
+  if (playSoundOnColorPick) {
+    playSound(pickedColor, 500);
+  }
 }
 
 function togglePlaySoundOnColorPick() {
@@ -79,7 +88,7 @@ function handleLogin() {
   const username = $('#login').val();
   if (username.length > 0) {
     if (dummyUsersData.users.includes(username)) {
-      IS_LOGGED_IN = true;
+      isLoggedIn = true;
     } else {
       dummyUsersData.users.push(username);
     }
@@ -93,7 +102,7 @@ function handleLogin() {
 }
 
 function handleLogout() {
-  IS_LOGGED_IN = false;
+  isLoggedIn = false;
   $("#right-sidebar").html(`
     <p> username? <input id="login" onkeyup="handleKeyUpLogin()"/> </p>
     <button id="loginButton" onclick="handleLogin()">Leggo</button>
@@ -103,11 +112,22 @@ function handleLogout() {
 
 /* ------------ AUDIO HANDLERS ------------ */
 
-function playbackMusic() {
+/**
+ * 
+ * @param {Object} color 
+ * @param {Number} duration - in milliseconds, to play
+ */
+function playSound(color, duration) {
 
+}
+
+/**
+ * Plays it left to right
+ * @param {*} data 
+ */
+function playbackMusic(data) {
   let AudioContext = window.AudioContext || window.webkitAudioContext;
   let audioCtx = new AudioContext();
-
   let oscillatorNode = audioCtx.createOscillator();
   oscillatorNode.type = 'triangle';
   oscillatorNode.frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
