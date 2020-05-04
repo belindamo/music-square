@@ -1,11 +1,48 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>MusicDraw</title>
-    <script src="https://d3js.org/d3.v5.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>MusicSquare</title>
+<!--     <link rel="stylesheet" href="lib/bootstrap.min.4.4.1.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="style.css" >
+    <script src="lib/jscolor.js"></script>
+    <script src="lib/jquery-3.5.0.js"></script>
+    <script src="lib/d3-v5.js"></script>
   </head>
   <body>
-    <div id="grid"></div>
+    <div class="header-container">
+      <div class="header-title"><h2> MusicSquare</h2></div>
+      <div><p>Press Space to Play</p></div>
+    </div>
+
+    <div class="main-container">
+      <div id="left-sidebar" class="container-padding">
+        <p>
+          Color:
+          <input value="#84DCCF" onchange="changePickedColor(this.value)" class="jscolor {mode:'HS', position:'right'}" />
+        </p>
+        <p>
+          <input type="checkbox"""
+        </p>
+        <br/> <br/>
+        <button class="select-area-option"> Select area </button>
+        <button class="draw-option"> Draw </button>
+      </div>
+      <div id="main-view">
+        <div class="grid-container">
+          <div class="grid"></div>
+        </div>
+      </div>
+      <div id="right-sidebar" class="container-padding">
+        <p> username? <input id="login" /> </p>
+        <button>Leggo</button>
+      </div>
+    </div>
+
+    <div class="footer-container">
+      
+    </div>
     
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="/__/firebase/7.14.1/firebase-app.js"></script>
@@ -17,6 +54,7 @@
     <!-- Initialize Firebase -->
     <script src="/__/firebase/init.js"></script>
 
-    <script src="index.js"></script>
+    <script src="js/MusicSquare.js"></script>
+    <script src="js/index.js"></script>
   </body>
 </html>
