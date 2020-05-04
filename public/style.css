@@ -10,6 +10,14 @@ button:hover {
   cursor: pointer;
 }
 
+button:active {
+  background-color: #84DCCF;
+}
+
+.selected-button {
+  background-color: #84DCCF;
+}
+
 .header-container {
   position:fixed;
   top: 0;

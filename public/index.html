@@ -20,14 +20,15 @@
       <div id="left-sidebar" class="container-padding">
         <p>
           Color:
-          <input value="#84DCCF" onchange="changePickedColor(this.value)" class="jscolor {mode:'HS', position:'right'}" />
+          <input value="#84DCCF" id="colorPicker" onchange="changePickedColor(this.value)" class="jscolor {mode:'HS', position:'right'}" />
         </p>
         <p>
-          <input type="checkbox"""
+          <input type="checkbox" id="playSoundOnColorPick" />
+          Play sound on color pick
         </p>
         <br/> <br/>
-        <button class="select-area-option"> Select area </button>
-        <button class="draw-option"> Draw </button>
+        <button id="select-area-option"> Select area </button>
+        <button id="draw-option"> Draw </button>
       </div>
       <div id="main-view">
         <div class="grid-container">
@@ -35,8 +36,8 @@
         </div>
       </div>
       <div id="right-sidebar" class="container-padding">
-        <p> username? <input id="login" /> </p>
-        <button>Leggo</button>
+        <p> username? <input id="login" onkeyup="handleKeyUpLogin()"/> </p>
+        <button id="loginButton" onclick="handleButtonLogin()">Leggo</button>
       </div>
     </div>
 
@@ -54,6 +55,7 @@
     <!-- Initialize Firebase -->
     <script src="/__/firebase/init.js"></script>
 
+    <script src="data/dummyUsersData.js"></script>
     <script src="js/MusicSquare.js"></script>
     <script src="js/index.js"></script>
   </body>

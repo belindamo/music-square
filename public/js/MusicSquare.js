@@ -19,7 +19,11 @@ function GridItem(x, y, row, column, width, height, hue, saturation, dateCreated
 /* ------------ Grid Class START ------------ */
 
 class Grid {
-  constructor(d3Selector, width, height, squaresPerRow) {
+  constructor(d3Selector, initialColor, width, height, squaresPerRow) {
+    this.colorToDraw = initialColor;
+    this.isMouseDown = false;
+    this.mode = "draw"; // Options: "draw", "select"
+
     this.width = width;
     this.height = height;
     const squareWidth = width/squaresPerRow;
@@ -52,9 +56,17 @@ class Grid {
       .style("stroke", "#222")
       .on('click', this.onMouseClick)
       .on('mousedown', this.onMouseDown)
-      .on('mouseup', this.onMouseUp);
+      .on('mouseup', this.onMouseUp)
+      .on('mouseenter', this.onMouseEnter);
   }
   
+  /**
+   * Updates this.colorToDraw
+   * @param {String} color - hex code
+   */
+  updateColorToDraw(color) {
+    
+  }
 
   initializeGrid(squareWidth, squaresPerRow, squaresPerColumn) {
     let data = [];
@@ -79,13 +91,21 @@ class Grid {
   }
 
   onMouseDown(d) {
-    console.log(d)
+    this.isMouseDown = true;
+    
+
   }
 
-//   onMouseUp(d) {
-//     // click++ for all changed colors
-//     console.log(d)
-//   }
+  onMouseUp(d) {
+    // click++ for all changed colors
+    this.isMouseDown = false;
+  }
+
+  onMouseEnter(d) {
+    if (this.isMouseDown) {
+      console.log(d)
+    }
+  }
   
 
 }
