@@ -2,15 +2,14 @@
 
 // Note that x and y denote the index of square clicked
 // color is in hexadecimal
-function GridItem(x, y, row, column, width, height, hue, saturation, dateCreated) {
+function GridItem(x, y, row, column, width, height, hex, dateCreated) {
   this.x = x;
   this.y = y;
   this.row = row;
   this.column = column;
   this.width = width;
   this.height = height;
-  this.hue = hue;
-  this.saturation = saturation;
+  this.hex = hex;
   this.click = 0;
   this.dateCreated = dateCreated; 
 }
@@ -19,8 +18,10 @@ function GridItem(x, y, row, column, width, height, hue, saturation, dateCreated
 /* ------------ Grid Class START ------------ */
 
 class Grid {
-  constructor(d3Selector, initialColor, width, height, squaresPerRow) {
-    this.colorToDraw = initialColor;
+
+  // TODO: takes in pre-existing firebase data c: 
+  constructor(d3Selector, colorToDraw, width, height, squaresPerRow) {
+    this.colorToDraw = colorToDraw;
     this.isMouseDown = false;
     this.mode = "draw"; // Options: "draw", "select"
 
@@ -38,7 +39,7 @@ class Grid {
 //           grid.attr("transform", d3.event.transform)
 //         }));
     this.grid = grid;
-    
+
     var row = this.grid.selectAll(".row")
       .data(this.gridData)
       .enter().append("g")
@@ -48,29 +49,51 @@ class Grid {
       .data(function(d) { return d; })
       .enter().append("rect")
       .attr("class","square")
+      .attr("id", function(d) { return `square-${d.row}-${d.column}` })
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; })
       .attr("width", function(d) { return d.width; })
       .attr("height", function(d) { return d.height; })
-      .style("fill", "#fff")
+      .style("fill", function(d) { return d.hex })
       .style("stroke", "#222")
-      .on('click', this.onMouseClick)
       .on('mousedown', this.onMouseDown)
       .on('mouseup', this.onMouseUp)
       .on('mouseenter', this.onMouseEnter);
+
   }
   
   /**
-   * Updates this.colorToDraw
+   * Updates this.colorToDraw. Checks if color to change is hex color
    * @param {String} color - hex code
+   * @return {Boolean} - whether color successfully updated
    */
-  updateColorToDraw(color) {
-    
+  updateColorToDraw = (color) => {
+    console.log(color)
+    if (/^#[0-9A-F]{6}$/i.test(color)) {
+      console.log('fff');
+      
+      this.colorToDraw = color;
+      return true;
+    }
+    return false;
   }
 
+  /**
+   * Update mode. 
+   * @param {String} mode - string must be "draw" or "select"
+   * @return {Boolean} - whether mode updated
+   */
+  updateMode = (mode) => {
+    if (mode === "draw" || mode === "select") {
+      this.mode = mode;
+      return true;
+    }
+    return false;
+  }
+
+  // TODO: link to firebase data here c: 
   initializeGrid(squareWidth, squaresPerRow, squaresPerColumn) {
     let data = [];
-    let click = 0;
     // x and y pos start from upper left corner
     let xpos = 0; 
     let ypos = 0;
@@ -81,7 +104,7 @@ class Grid {
     for (var row = 0; row < squaresPerColumn; row++) {
       data.push( [] );
       for (var column = 0; column < squaresPerRow; column++) {
-        data[row].push(new GridItem(xpos, ypos, row, column, width, height, 0, 0, date));
+        data[row].push(new GridItem(xpos, ypos, row, column, width, height, "#ffffff", date));
         xpos += width;
       }
       xpos = 0;
@@ -90,24 +113,40 @@ class Grid {
     return data;
   }
 
-  onMouseDown(d) {
+  onMouseDown = (d) => {
+    console.log(d)
+    // this.style("fill", "#000");
     this.isMouseDown = true;
-    
-
+    this.changeSquareColor(d.row, d.column);
+    // d3.selectAll('square').filter(function(d) {
+    //   return 
+    // })
+    // transition().
+    // delay(100).
+    // style("background-color", "red");
   }
 
-  onMouseUp(d) {
-    // click++ for all changed colors
+  onMouseUp = (d) => {
     this.isMouseDown = false;
   }
 
-  onMouseEnter(d) {
+  onMouseEnter = (d) => {
     if (this.isMouseDown) {
-      console.log(d)
+      this.changeSquareColor(d.row, d.column)
     }
   }
-  
 
+  changeSquareColor(row, column) {
+    this.gridData[row][column].hex = this.colorToDraw;
+    d3.select(`#square-${row}-${column}`)
+      // .transition().delay(100)
+      .style("fill", function(d) { return d.hex })
+    // TODO: link to firebase here c: update in real time yas
+  }
+
+  // transition!! interpolation try it out https://bost.ocks.org/mike/transition/
+
+  // thots: using enter, exit to update grid as it toggles size over time. 
 }
 
 

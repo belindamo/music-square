@@ -36,7 +36,7 @@ function initializeGame() {
   const gridWidth = $('.grid-container').width();
   const gridHeight = $('.grid-container').height();
   
-  let grid = new Grid('.grid', pickedColor, gridWidth, gridHeight, STARTING_SQUARES_PER_ROW);  
+  grid = new Grid('.grid', pickedColor, gridWidth, gridHeight, STARTING_SQUARES_PER_ROW);  
 }
 
 /* ------------ EVENT LISTENERS ------------ */
@@ -47,8 +47,8 @@ function initializeGame() {
  * This function is called when color picker's color changes
  */
 function changePickedColor() {
-  console.log($(this).val());
   pickedColor = $(this).val();
+  grid.updateColorToDraw(`#${pickedColor}`);
 }
 
 function togglePlaySoundOnColorPick() {
