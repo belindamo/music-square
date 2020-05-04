@@ -60,7 +60,7 @@ function changePickedColor(picker) {
   };
   grid.updateColorToDraw(pickedColor);
   if (playSoundOnColorPick) {
-    playSound(pickedColor, 200);
+    playSound(pickedColor, 0, 0.2);
   }
 }
 
@@ -76,7 +76,7 @@ function togglePlaySoundOnDraw() {
 
 function onKeyUp(e) {
   if (e.code === 'Space') {
-    playbackMusic();
+    playbackMusic(grid.gridData);
   }
 }
 
@@ -123,7 +123,7 @@ function handleLogout() {
 
 let song = [];
 
-// by 27.69 degrees, starting at 0. That means 13 notes, aka
+// by 27.70 degrees, starting at 0. That means 13 notes, aka
 // a whole octave in half notes.
 // Range: Middle C4 - C5.
 // https://pages.mtu.edu/~suits/notefreqs.html
@@ -150,9 +150,10 @@ const notes = [
  * saturation = reverb (less saturation = more reverb)
  * value = ...octave?
  * @param {Object} color 
- * @param {Number} duration - in milliseconds, to play
+ * @param {Number} startTime - time from when code executes, to when it plays. in seconds
+ * @param {Number} duration -  to play. in seconds
  */
-function playSound(color, duration) {
+function playSound(color, startTime, duration) {
   
   const hue = color.hsv[0];
   const saturation = color.hsv[1];
@@ -163,15 +164,26 @@ function playSound(color, duration) {
     sampleRate: 48000,
   });
 
+  // var gainNode = audioCtx.createGain();
   let oscillatorNode = audioCtx.createOscillator();
   oscillatorNode.type = 'triangle';
+  
+  let gainNode = audioCtx.createGain();
+  oscillatorNode.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  gainNode.gain.setValueAtTime(-1, audioCtx.currentTime);
 
-  const frequency = notes[ Math.floor(hue/ 27.69) ];
+  const frequency = notes[ Math.floor(hue/ 27.70) ];
 
-  oscillatorNode.frequency.setValueAtTime(frequency, audioCtx.currentTime); // value in hertz
+  console.log(audioCtx.currentTime);
+  
+  startTime = audioCtx.currentTime + startTime;
+  gainNode.gain.setValueAtTime(0.01, startTime)
+  oscillatorNode.frequency.setValueAtTime(frequency, startTime); // value in hertz
   oscillatorNode.connect(audioCtx.destination);
   oscillatorNode.start();
-  oscillatorNode.stop(audioCtx.currentTime + duration/1000);
+  gainNode.gain.setValueAtTime(0, startTime + duration - 0.01);
+  oscillatorNode.stop(startTime + duration);
 }
 
 /**
@@ -179,8 +191,26 @@ function playSound(color, duration) {
  * @param {*} data 
  */
 function playbackMusic(data) {
+  const musicalStatement = [];
 
-//   var gainNode = audioCtx.createGain();
-//   var finish = audioCtx.destination;
+  // filter out to necessities
+  for (var row = 0; row < data.length; row++) {
+    musicalStatement.push([]);
+    for (var col = 0; col < data[0].length; col++) {
+      if (data[row][col].hex != '#FFFFFF') {
+        const color = {
+          hex: data[row][col].hex,
+          hsv: data[row][col].hsv
+        };
+        musicalStatement[row].push(color);
+      }
+    }
+  }
+
+  // each row is an array of notes to play back
+  musicalStatement.forEach((row, i) => {
+    row.forEach((color) => {
+      playSound(color, i * 0.3, 0.3)
+    })
+  })
 }
-

@@ -126,8 +126,7 @@ class Grid {
   }
 
   changeSquareColor(row, column) {
-    this.callbackOnDraw(this.colorToDraw, 200);
-    console.log(this.colorToDraw)
+    this.callbackOnDraw(this.colorToDraw, 0, 0.2);
     this.gridData[row][column].hex = this.colorToDraw.hex;
     this.gridData[row][column].hsv = this.colorToDraw.hsv;
     d3.select(`#square-${row}-${column}`)
